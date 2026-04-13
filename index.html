@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Runner Infinito</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: radial-gradient(circle at top, #223, #10131f 60%);
+      }
+
+      .container {
+        width: min(900px, 96vw);
+      }
+
+      h1 {
+        text-align: center;
+        margin: 0 0 0.5rem;
+        letter-spacing: 0.08em;
+      }
+
+      .hint {
+        text-align: center;
+        margin-bottom: 1rem;
+        opacity: 0.85;
+      }
+
+      canvas {
+        width: 100%;
+        border: 2px solid #5f7ad8;
+        border-radius: 12px;
+        display: block;
+        background: linear-gradient(#2f436f, #1d2a49 45%, #18233f 46%, #243242);
+        box-shadow: 0 12px 36px rgb(0 0 0 / 45%);
+      }
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      <h1>Runner Horizontal</h1>
+      <p class="hint">Pulsa <strong>espacio</strong> o haz clic para saltar y evitar obstáculos.</p>
+      <canvas id="game" width="900" height="320" aria-label="Juego runner infinito"></canvas>
+    </main>
+
+    <script>
+      const canvas = document.getElementById("game");
+      const ctx = canvas.getContext("2d");
+
+      const groundY = 255;
+      let gameOver = false;
+      let score = 0;
+      let bestScore = Number(localStorage.getItem("runnerBest") || 0);
+      let speed = 6;
+      let obstacleTimer = 0;
+      let stars = Array.from({ length: 70 }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * (groundY - 120),
+        r: Math.random() * 2 + 0.5,
+      }));
+
+      const player = {
+        x: 90,
+        y: groundY - 56,
+        width: 46,
+        height: 56,
+        vy: 0,
+        gravity: 0.85,
+        jump: -15,
+        onGround: true,
+      };
+
+      const obstacles = [];
+
+      function spawnObstacle() {
+        const width = 24 + Math.random() * 34;
+        const height = 28 + Math.random() * 58;
+        obstacles.push({
+          x: canvas.width + width,
+          y: groundY - height,
+          width,
+          height,
+        });
+      }
+
+      function reset() {
+        gameOver = false;
+        score = 0;
+        speed = 6;
+        obstacleTimer = 0;
+        obstacles.length = 0;
+        player.y = groundY - player.height;
+        player.vy = 0;
+        player.onGround = true;
+      }
+
+      function jump() {
+        if (gameOver) {
+          reset();
+          return;
+        }
+        if (player.onGround) {
+          player.vy = player.jump;
+          player.onGround = false;
+        }
+      }
+
+      function collide(a, b) {
+        return (
+          a.x < b.x + b.width &&
+          a.x + a.width > b.x &&
+          a.y < b.y + b.height &&
+          a.y + a.height > b.y
+        );
+      }
+
+      function update() {
+        if (gameOver) return;
+
+        player.vy += player.gravity;
+        player.y += player.vy;
+
+        if (player.y + player.height >= groundY) {
+          player.y = groundY - player.height;
+          player.vy = 0;
+          player.onGround = true;
+        }
+
+        obstacleTimer += 1;
+        const spawnEvery = Math.max(45, 110 - speed * 6 + Math.random() * 20);
+        if (obstacleTimer > spawnEvery) {
+          obstacleTimer = 0;
+          spawnObstacle();
+        }
+
+        for (let i = obstacles.length - 1; i >= 0; i--) {
+          const o = obstacles[i];
+          o.x -= speed;
+
+          if (collide(player, o)) {
+            gameOver = true;
+            if (score > bestScore) {
+              bestScore = score;
+              localStorage.setItem("runnerBest", String(bestScore));
+            }
+          }
+
+          if (o.x + o.width < 0) {
+            obstacles.splice(i, 1);
+            score += 1;
+            speed += 0.08;
+          }
+        }
+
+        for (const star of stars) {
+          star.x -= speed * 0.15;
+          if (star.x < -2) {
+            star.x = canvas.width + Math.random() * 40;
+            star.y = Math.random() * (groundY - 120);
+          }
+        }
+      }
+
+      function drawRunner() {
+        ctx.fillStyle = "#ffd166";
+        ctx.fillRect(player.x, player.y, player.width, player.height);
+
+        ctx.fillStyle = "#0c1329";
+        ctx.fillRect(player.x + 30, player.y + 12, 8, 8);
+
+        ctx.fillStyle = "#ef476f";
+        ctx.fillRect(player.x + 8, player.y + 40, 28, 8);
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // estrellas
+        for (const star of stars) {
+          ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+          ctx.beginPath();
+          ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // suelo
+        ctx.fillStyle = "#3a4f74";
+        ctx.fillRect(0, groundY, canvas.width, canvas.height - groundY);
+        ctx.fillStyle = "#617da7";
+        for (let i = 0; i < canvas.width; i += 44) {
+          ctx.fillRect((i - (performance.now() * speed * 0.02) % 44), groundY + 28, 28, 5);
+        }
+
+        drawRunner();
+
+        // obstáculos
+        ctx.fillStyle = "#06d6a0";
+        obstacles.forEach((o) => {
+          ctx.fillRect(o.x, o.y, o.width, o.height);
+          ctx.fillStyle = "#04b485";
+          ctx.fillRect(o.x + 4, o.y + 6, o.width - 8, 7);
+          ctx.fillStyle = "#06d6a0";
+        });
+
+        // UI
+        ctx.fillStyle = "white";
+        ctx.font = "bold 22px Segoe UI";
+        ctx.fillText(`Puntos: ${score}`, 20, 36);
+        ctx.fillText(`Mejor: ${bestScore}`, 20, 66);
+        ctx.fillText(`Velocidad: ${speed.toFixed(1)}`, 20, 96);
+
+        if (gameOver) {
+          ctx.fillStyle = "rgba(0,0,0,0.6)";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.fillStyle = "#fff";
+          ctx.textAlign = "center";
+          ctx.font = "bold 40px Segoe UI";
+          ctx.fillText("¡Perdiste!", canvas.width / 2, 130);
+          ctx.font = "24px Segoe UI";
+          ctx.fillText("Pulsa espacio o clic para reiniciar", canvas.width / 2, 178);
+          ctx.textAlign = "left";
+        }
+      }
+
+      function loop() {
+        update();
+        draw();
+        requestAnimationFrame(loop);
+      }
+
+      window.addEventListener("keydown", (e) => {
+        if (e.code === "Space" || e.code === "ArrowUp") {
+          e.preventDefault();
+          jump();
+        }
+      });
+
+      canvas.addEventListener("pointerdown", jump);
+
+      loop();
+    </script>
+  </body>
+</html>
