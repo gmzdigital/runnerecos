@@ -1,479 +1,797 @@
- (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
 diff --git a/index.html b/index.html
-index 8a436055320f0165086e39ef10bc1522d3eb7097..96c9f00afd442e5c7a65e2b10e923759053a5c20 100644
+index c084a934c35d0cc21ba9723ff3cd0b3b8a1670cc..e318bc8503878032a30159f18f1d785dd686a6f1 100644
 --- a/index.html
 +++ b/index.html
-@@ -1,251 +1,427 @@
- <!doctype html>
- <html lang="es">
-   <head>
-     <meta charset="UTF-8" />
-     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-     <title>Runner Infinito</title>
-     <style>
-       :root {
-         color-scheme: dark;
-         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-       }
- 
-       body {
-         margin: 0;
-         min-height: 100vh;
-         display: grid;
-         place-items: center;
--        background: radial-gradient(circle at top, #223, #10131f 60%);
-+        background: radial-gradient(circle at top, #1f2e52, #0c1121 62%);
-       }
- 
-       .container {
--        width: min(900px, 96vw);
-+        width: min(940px, 96vw);
-       }
- 
-       h1 {
-         text-align: center;
-         margin: 0 0 0.5rem;
-         letter-spacing: 0.08em;
-+        color: #a8d5ff;
-       }
- 
-       .hint {
-         text-align: center;
--        margin-bottom: 1rem;
--        opacity: 0.85;
-+        margin-bottom: 0.75rem;
-+        opacity: 0.92;
+@@ -1,479 +1,313 @@
+- (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
+-diff --git a/index.html b/index.html
+-index 8a436055320f0165086e39ef10bc1522d3eb7097..96c9f00afd442e5c7a65e2b10e923759053a5c20 100644
+---- a/index.html
+-+++ b/index.html
+-@@ -1,251 +1,427 @@
+- <!doctype html>
+- <html lang="es">
+-   <head>
+-     <meta charset="UTF-8" />
+-     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+-     <title>Runner Infinito</title>
+-     <style>
+-       :root {
+-         color-scheme: dark;
+-         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+-       }
+- 
+-       body {
+-         margin: 0;
+-         min-height: 100vh;
+-         display: grid;
+-         place-items: center;
+--        background: radial-gradient(circle at top, #223, #10131f 60%);
+-+        background: radial-gradient(circle at top, #1f2e52, #0c1121 62%);
+-       }
+- 
+-       .container {
+--        width: min(900px, 96vw);
+-+        width: min(940px, 96vw);
+-       }
+- 
+-       h1 {
+-         text-align: center;
+-         margin: 0 0 0.5rem;
+-         letter-spacing: 0.08em;
+-+        color: #a8d5ff;
+-       }
+- 
+-       .hint {
+-         text-align: center;
+--        margin-bottom: 1rem;
+--        opacity: 0.85;
+-+        margin-bottom: 0.75rem;
+-+        opacity: 0.92;
+-+      }
+-+
+-+      .controls {
+-+        display: flex;
+-+        justify-content: center;
+-+        gap: 0.75rem;
+-+        align-items: center;
+-+        margin-bottom: 0.75rem;
+-+        flex-wrap: wrap;
+-+      }
+-+
+-+      .controls select,
+-+      .controls button {
+-+        border: 1px solid #5f7ad8;
+-+        background: #162342;
+-+        color: #f2f8ff;
+-+        border-radius: 8px;
+-+        padding: 0.45rem 0.7rem;
+-+        font-size: 0.95rem;
+-       }
+- 
+-       canvas {
+-         width: 100%;
+-         border: 2px solid #5f7ad8;
+-         border-radius: 12px;
+-         display: block;
+-         background: linear-gradient(#2f436f, #1d2a49 45%, #18233f 46%, #243242);
+-         box-shadow: 0 12px 36px rgb(0 0 0 / 45%);
+-       }
+-     </style>
+-   </head>
+-   <body>
+-     <main class="container">
+--      <h1>Runner Horizontal</h1>
+--      <p class="hint">Pulsa <strong>espacio</strong> o haz clic para saltar y evitar obstáculos.</p>
+-+      <h1>Runner Sónico</h1>
+-+      <p class="hint">Pulsa <strong>espacio</strong> o haz clic para saltar. Tema con sprite, FX y música ambiental.</p>
+-+      <div class="controls">
+-+        <label for="themeSelect">Tema:</label>
+-+        <select id="themeSelect" aria-label="Selector de tema">
+-+          <option value="greenHill">Green Hill</option>
+-+          <option value="chemical">Chemical Night</option>
+-+        </select>
+-+        <button id="musicToggle" type="button">🎵 Activar música</button>
+-+      </div>
+-       <canvas id="game" width="900" height="320" aria-label="Juego runner infinito"></canvas>
+-     </main>
+- 
+-     <script>
+-       const canvas = document.getElementById("game");
+-       const ctx = canvas.getContext("2d");
+-+      const themeSelect = document.getElementById("themeSelect");
+-+      const musicToggle = document.getElementById("musicToggle");
+- 
+-       const groundY = 255;
+-       let gameOver = false;
+-       let score = 0;
+-       let bestScore = Number(localStorage.getItem("runnerBest") || 0);
+-       let speed = 6;
+-       let obstacleTimer = 0;
+--      let stars = Array.from({ length: 70 }, () => ({
+-+
+-+      const themes = {
+-+        greenHill: {
+-+          skyTop: "#4a8dff",
+-+          skyBottom: "#7ce0ff",
+-+          hill: "#36a067",
+-+          ground: "#2f7b48",
+-+          lane: "#f2d37f",
+-+          obstacle: "#b4502e",
+-+          obstacleDetail: "#7b2f16",
+-+          ui: "#ffffff",
+-+          star: "rgba(255,255,255,0.22)",
+-+        },
+-+        chemical: {
+-+          skyTop: "#2a2b78",
+-+          skyBottom: "#8c42db",
+-+          hill: "#1675a4",
+-+          ground: "#05496e",
+-+          lane: "#6ae8ff",
+-+          obstacle: "#f7a8ff",
+-+          obstacleDetail: "#a84ab8",
+-+          ui: "#f6f9ff",
+-+          star: "rgba(255,255,255,0.9)",
+-+        },
+-+      };
+-+
+-+      let currentTheme = themes[themeSelect.value];
+-+
+-+      let stars = Array.from({ length: 60 }, () => ({
+-         x: Math.random() * canvas.width,
+--        y: Math.random() * (groundY - 120),
+-+        y: Math.random() * (groundY - 110),
+-         r: Math.random() * 2 + 0.5,
+-       }));
+- 
+-       const player = {
+-         x: 90,
+-         y: groundY - 56,
+--        width: 46,
+-+        width: 52,
+-         height: 56,
+-         vy: 0,
+-         gravity: 0.85,
+-         jump: -15,
+-         onGround: true,
+-+        frame: 0,
+-       };
+- 
+-       const obstacles = [];
+- 
+-+      const audioState = {
+-+        ctx: null,
+-+        musicOsc: null,
+-+        musicLfo: null,
+-+        gain: null,
+-+        initialized: false,
+-+        musicOn: false,
+-+      };
+-+
+-+      function initAudio() {
+-+        if (audioState.initialized) return;
+-+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+-+        if (!AudioContextClass) return;
+-+        audioState.ctx = new AudioContextClass();
+-+        audioState.initialized = true;
+-+      }
+-+
+-+      function playFx(type) {
+-+        initAudio();
+-+        if (!audioState.ctx) return;
+-+        const now = audioState.ctx.currentTime;
+-+        const osc = audioState.ctx.createOscillator();
+-+        const gain = audioState.ctx.createGain();
+-+        osc.type = type === "hit" ? "sawtooth" : "square";
+-+        osc.frequency.setValueAtTime(type === "jump" ? 520 : 180, now);
+-+        osc.frequency.exponentialRampToValueAtTime(type === "jump" ? 900 : 80, now + 0.18);
+-+        gain.gain.setValueAtTime(0.0001, now);
+-+        gain.gain.exponentialRampToValueAtTime(type === "jump" ? 0.09 : 0.15, now + 0.01);
+-+        gain.gain.exponentialRampToValueAtTime(0.0001, now + (type === "jump" ? 0.22 : 0.3));
+-+        osc.connect(gain).connect(audioState.ctx.destination);
+-+        osc.start(now);
+-+        osc.stop(now + 0.32);
+-+      }
+-+
+-+      function toggleMusic() {
+-+        initAudio();
+-+        if (!audioState.ctx) return;
+-+
+-+        if (!audioState.musicOn) {
+-+          const osc = audioState.ctx.createOscillator();
+-+          const lfo = audioState.ctx.createOscillator();
+-+          const lfoGain = audioState.ctx.createGain();
+-+          const gain = audioState.ctx.createGain();
+-+
+-+          osc.type = "triangle";
+-+          osc.frequency.value = 220;
+-+          lfo.type = "sine";
+-+          lfo.frequency.value = 3.2;
+-+          lfoGain.gain.value = 18;
+-+          gain.gain.value = 0.035;
+-+
+-+          lfo.connect(lfoGain).connect(osc.frequency);
+-+          osc.connect(gain).connect(audioState.ctx.destination);
+-+
+-+          osc.start();
+-+          lfo.start();
+-+
+-+          audioState.musicOsc = osc;
+-+          audioState.musicLfo = lfo;
+-+          audioState.gain = gain;
+-+          audioState.musicOn = true;
+-+          musicToggle.textContent = "🎵 Música encendida";
+-+        } else {
+-+          audioState.musicOsc.stop();
+-+          audioState.musicLfo.stop();
+-+          audioState.musicOsc.disconnect();
+-+          audioState.musicLfo.disconnect();
+-+          audioState.gain.disconnect();
+-+          audioState.musicOsc = null;
+-+          audioState.musicLfo = null;
+-+          audioState.gain = null;
+-+          audioState.musicOn = false;
+-+          musicToggle.textContent = "🎵 Activar música";
+-+        }
+-+      }
+-+
+-       function spawnObstacle() {
+--        const width = 24 + Math.random() * 34;
+--        const height = 28 + Math.random() * 58;
+-+        const width = 30 + Math.random() * 24;
+-+        const height = 34 + Math.random() * 48;
+-         obstacles.push({
+-           x: canvas.width + width,
+-           y: groundY - height,
+-           width,
+-           height,
+-         });
+-       }
+- 
+-       function reset() {
+-         gameOver = false;
+-         score = 0;
+-         speed = 6;
+-         obstacleTimer = 0;
+-         obstacles.length = 0;
+-         player.y = groundY - player.height;
+-         player.vy = 0;
+-         player.onGround = true;
+-       }
+- 
+-       function jump() {
+-         if (gameOver) {
+-           reset();
+-           return;
+-         }
+-         if (player.onGround) {
+-           player.vy = player.jump;
+-           player.onGround = false;
+-+          playFx("jump");
+-         }
+-       }
+- 
+-       function collide(a, b) {
+--        return (
+--          a.x < b.x + b.width &&
+--          a.x + a.width > b.x &&
+--          a.y < b.y + b.height &&
+--          a.y + a.height > b.y
+--        );
+-+        return a.x + 8 < b.x + b.width && a.x + a.width - 6 > b.x && a.y + 4 < b.y + b.height && a.y + a.height > b.y;
+-       }
+- 
+-       function update() {
+-         if (gameOver) return;
+- 
+-         player.vy += player.gravity;
+-         player.y += player.vy;
+-+        player.frame = (player.frame + speed * 0.15) % 2;
+- 
+-         if (player.y + player.height >= groundY) {
+-           player.y = groundY - player.height;
+-           player.vy = 0;
+-           player.onGround = true;
+-         }
+- 
+-         obstacleTimer += 1;
+--        const spawnEvery = Math.max(45, 110 - speed * 6 + Math.random() * 20);
+-+        const spawnEvery = Math.max(45, 105 - speed * 6 + Math.random() * 16);
+-         if (obstacleTimer > spawnEvery) {
+-           obstacleTimer = 0;
+-           spawnObstacle();
+-         }
+- 
+-         for (let i = obstacles.length - 1; i >= 0; i--) {
+-           const o = obstacles[i];
+-           o.x -= speed;
+- 
+-           if (collide(player, o)) {
+-             gameOver = true;
+-+            playFx("hit");
+-             if (score > bestScore) {
+-               bestScore = score;
+-               localStorage.setItem("runnerBest", String(bestScore));
+-             }
+-           }
+- 
+-           if (o.x + o.width < 0) {
+-             obstacles.splice(i, 1);
+-             score += 1;
+-             speed += 0.08;
+-           }
+-         }
+- 
+-         for (const star of stars) {
+--          star.x -= speed * 0.15;
+-+          star.x -= speed * 0.2;
+-           if (star.x < -2) {
+-             star.x = canvas.width + Math.random() * 40;
+--            star.y = Math.random() * (groundY - 120);
+-+            star.y = Math.random() * (groundY - 110);
+-           }
+-         }
+-       }
+- 
+-       function drawRunner() {
+--        ctx.fillStyle = "#ffd166";
+--        ctx.fillRect(player.x, player.y, player.width, player.height);
+--
+--        ctx.fillStyle = "#0c1329";
+--        ctx.fillRect(player.x + 30, player.y + 12, 8, 8);
+--
+--        ctx.fillStyle = "#ef476f";
+--        ctx.fillRect(player.x + 8, player.y + 40, 28, 8);
+-+        const legOffset = player.onGround ? (Math.floor(player.frame) === 0 ? 2 : -2) : -4;
+-+        ctx.save();
+-+        ctx.translate(player.x, player.y);
+-+
+-+        ctx.fillStyle = "#0b4fff";
+-+        ctx.beginPath();
+-+        ctx.ellipse(26, 29, 22, 25, 0, 0, Math.PI * 2);
+-+        ctx.fill();
+-+
+-+        ctx.fillStyle = "#f4d5a1";
+-+        ctx.beginPath();
+-+        ctx.ellipse(30, 35, 12, 9, 0, 0, Math.PI * 2);
+-+        ctx.fill();
+-+
+-+        ctx.fillStyle = "#0b4fff";
+-+        ctx.fillRect(4, 16, 16, 7);
+-+        ctx.fillRect(8, 9, 15, 7);
+-+
+-+        ctx.fillStyle = "#fff";
+-+        ctx.fillRect(31, 19, 7, 10);
+-+        ctx.fillStyle = "#121212";
+-+        ctx.fillRect(35, 22, 2, 3);
+-+
+-+        ctx.fillStyle = "#da2f2f";
+-+        ctx.fillRect(10, 44 + legOffset, 15, 8);
+-+        ctx.fillRect(27, 45 - legOffset, 15, 8);
+-+
+-+        ctx.restore();
+-       }
+- 
+-       function draw() {
+-         ctx.clearRect(0, 0, canvas.width, canvas.height);
+- 
+--        // estrellas
+-+        const sky = ctx.createLinearGradient(0, 0, 0, groundY);
+-+        sky.addColorStop(0, currentTheme.skyTop);
+-+        sky.addColorStop(1, currentTheme.skyBottom);
+-+        ctx.fillStyle = sky;
+-+        ctx.fillRect(0, 0, canvas.width, groundY);
+-+
+-         for (const star of stars) {
+--          ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+-+          ctx.fillStyle = currentTheme.star;
+-           ctx.beginPath();
+-           ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);
+-           ctx.fill();
+-         }
+- 
+--        // suelo
+--        ctx.fillStyle = "#3a4f74";
+-+        ctx.fillStyle = currentTheme.hill;
+-+        for (let i = -120; i < canvas.width + 200; i += 170) {
+-+          const x = i - (performance.now() * speed * 0.02) % 170;
+-+          ctx.beginPath();
+-+          ctx.arc(x, groundY + 40, 95, Math.PI, Math.PI * 2);
+-+          ctx.fill();
+-+        }
+-+
+-+        ctx.fillStyle = currentTheme.ground;
+-         ctx.fillRect(0, groundY, canvas.width, canvas.height - groundY);
+--        ctx.fillStyle = "#617da7";
+--        for (let i = 0; i < canvas.width; i += 44) {
+--          ctx.fillRect((i - (performance.now() * speed * 0.02) % 44), groundY + 28, 28, 5);
+-+
+-+        ctx.fillStyle = currentTheme.lane;
+-+        for (let i = 0; i < canvas.width; i += 52) {
+-+          ctx.fillRect(i - (performance.now() * speed * 0.04) % 52, groundY + 30, 32, 6);
+-         }
+- 
+-         drawRunner();
+- 
+--        // obstáculos
+--        ctx.fillStyle = "#06d6a0";
+-+        ctx.fillStyle = currentTheme.obstacle;
+-         obstacles.forEach((o) => {
+-           ctx.fillRect(o.x, o.y, o.width, o.height);
+--          ctx.fillStyle = "#04b485";
+--          ctx.fillRect(o.x + 4, o.y + 6, o.width - 8, 7);
+--          ctx.fillStyle = "#06d6a0";
+-+          ctx.fillStyle = currentTheme.obstacleDetail;
+-+          ctx.fillRect(o.x + 4, o.y + 7, o.width - 8, 7);
+-+          ctx.fillStyle = currentTheme.obstacle;
+-         });
+- 
+--        // UI
+--        ctx.fillStyle = "white";
+-+        ctx.fillStyle = currentTheme.ui;
+-         ctx.font = "bold 22px Segoe UI";
+-         ctx.fillText(`Puntos: ${score}`, 20, 36);
+-         ctx.fillText(`Mejor: ${bestScore}`, 20, 66);
+-         ctx.fillText(`Velocidad: ${speed.toFixed(1)}`, 20, 96);
+- 
+-         if (gameOver) {
+--          ctx.fillStyle = "rgba(0,0,0,0.6)";
+-+          ctx.fillStyle = "rgba(0,0,0,0.58)";
+-           ctx.fillRect(0, 0, canvas.width, canvas.height);
+-           ctx.fillStyle = "#fff";
+-           ctx.textAlign = "center";
+-           ctx.font = "bold 40px Segoe UI";
+-           ctx.fillText("¡Perdiste!", canvas.width / 2, 130);
+-           ctx.font = "24px Segoe UI";
+-           ctx.fillText("Pulsa espacio o clic para reiniciar", canvas.width / 2, 178);
+-           ctx.textAlign = "left";
+-         }
+-       }
+- 
+-       function loop() {
+-         update();
+-         draw();
+-         requestAnimationFrame(loop);
+-       }
+- 
+-+      themeSelect.addEventListener("change", () => {
+-+        currentTheme = themes[themeSelect.value];
+-+      });
+-+
+-+      musicToggle.addEventListener("click", async () => {
+-+        initAudio();
+-+        if (audioState.ctx && audioState.ctx.state === "suspended") {
+-+          await audioState.ctx.resume();
+-+        }
+-+        toggleMusic();
+-+      });
+-+
+-       window.addEventListener("keydown", (e) => {
+-         if (e.code === "Space" || e.code === "ArrowUp") {
+-           e.preventDefault();
+-           jump();
+-         }
+-       });
+- 
+-       canvas.addEventListener("pointerdown", jump);
+- 
+-       loop();
+-     </script>
+-   </body>
+- </html>
+- 
+-EOF
+-)
++<!doctype html>
++<html lang="es">
++  <head>
++    <meta charset="UTF-8" />
++    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
++    <title>Runner Infinito</title>
++    <style>
++      :root {
++        color-scheme: dark;
++        font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 +      }
 +
-+      .controls {
-+        display: flex;
-+        justify-content: center;
-+        gap: 0.75rem;
-+        align-items: center;
-+        margin-bottom: 0.75rem;
-+        flex-wrap: wrap;
++      * {
++        box-sizing: border-box;
 +      }
 +
-+      .controls select,
-+      .controls button {
-+        border: 1px solid #5f7ad8;
-+        background: #162342;
-+        color: #f2f8ff;
-+        border-radius: 8px;
-+        padding: 0.45rem 0.7rem;
-+        font-size: 0.95rem;
-       }
- 
-       canvas {
-         width: 100%;
-         border: 2px solid #5f7ad8;
-         border-radius: 12px;
-         display: block;
-         background: linear-gradient(#2f436f, #1d2a49 45%, #18233f 46%, #243242);
-         box-shadow: 0 12px 36px rgb(0 0 0 / 45%);
-       }
-     </style>
-   </head>
-   <body>
-     <main class="container">
--      <h1>Runner Horizontal</h1>
--      <p class="hint">Pulsa <strong>espacio</strong> o haz clic para saltar y evitar obstáculos.</p>
-+      <h1>Runner Sónico</h1>
-+      <p class="hint">Pulsa <strong>espacio</strong> o haz clic para saltar. Tema con sprite, FX y música ambiental.</p>
-+      <div class="controls">
-+        <label for="themeSelect">Tema:</label>
-+        <select id="themeSelect" aria-label="Selector de tema">
-+          <option value="greenHill">Green Hill</option>
-+          <option value="chemical">Chemical Night</option>
-+        </select>
-+        <button id="musicToggle" type="button">🎵 Activar música</button>
-+      </div>
-       <canvas id="game" width="900" height="320" aria-label="Juego runner infinito"></canvas>
-     </main>
- 
-     <script>
-       const canvas = document.getElementById("game");
-       const ctx = canvas.getContext("2d");
-+      const themeSelect = document.getElementById("themeSelect");
-+      const musicToggle = document.getElementById("musicToggle");
- 
-       const groundY = 255;
-       let gameOver = false;
-       let score = 0;
-       let bestScore = Number(localStorage.getItem("runnerBest") || 0);
-       let speed = 6;
-       let obstacleTimer = 0;
--      let stars = Array.from({ length: 70 }, () => ({
++      body {
++        margin: 0;
++        min-height: 100vh;
++        display: grid;
++        place-items: center;
++        background: radial-gradient(circle at 30% 20%, #334155 0%, #0f172a 60%);
++        color: #e2e8f0;
++      }
 +
-+      const themes = {
-+        greenHill: {
-+          skyTop: "#4a8dff",
-+          skyBottom: "#7ce0ff",
-+          hill: "#36a067",
-+          ground: "#2f7b48",
-+          lane: "#f2d37f",
-+          obstacle: "#b4502e",
-+          obstacleDetail: "#7b2f16",
-+          ui: "#ffffff",
-+          star: "rgba(255,255,255,0.22)",
-+        },
-+        chemical: {
-+          skyTop: "#2a2b78",
-+          skyBottom: "#8c42db",
-+          hill: "#1675a4",
-+          ground: "#05496e",
-+          lane: "#6ae8ff",
-+          obstacle: "#f7a8ff",
-+          obstacleDetail: "#a84ab8",
-+          ui: "#f6f9ff",
-+          star: "rgba(255,255,255,0.9)",
-+        },
++      .game-shell {
++        width: min(960px, 96vw);
++      }
++
++      h1 {
++        text-align: center;
++        margin: 0 0 0.5rem;
++        letter-spacing: 0.04em;
++      }
++
++      .hint {
++        text-align: center;
++        margin: 0 0 0.8rem;
++        opacity: 0.9;
++      }
++
++      canvas {
++        width: 100%;
++        height: auto;
++        display: block;
++        border: 2px solid #64748b;
++        border-radius: 14px;
++        box-shadow: 0 20px 38px rgb(0 0 0 / 40%);
++        background: linear-gradient(#22d3ee 0%, #38bdf8 50%, #14532d 51%, #166534 100%);
++      }
++    </style>
++  </head>
++  <body>
++    <main class="game-shell">
++      <h1>Videojuego Runner Infinito</h1>
++      <p class="hint">Salta con <strong>Espacio</strong>, <strong>↑</strong> o clic/touch para esquivar obstáculos.</p>
++      <canvas id="game" width="960" height="360" aria-label="Runner con ruta infinita y obstáculos"></canvas>
++    </main>
++
++    <script>
++      const canvas = document.getElementById("game");
++      const ctx = canvas.getContext("2d");
++
++      const world = {
++        floorY: 285,
++        gravity: 0.95,
++        speed: 6,
++        minSpawnMs: 700,
++        maxSpawnMs: 1450,
++        gameOver: false,
 +      };
 +
-+      let currentTheme = themes[themeSelect.value];
-+
-+      let stars = Array.from({ length: 60 }, () => ({
-         x: Math.random() * canvas.width,
--        y: Math.random() * (groundY - 120),
-+        y: Math.random() * (groundY - 110),
-         r: Math.random() * 2 + 0.5,
-       }));
- 
-       const player = {
-         x: 90,
-         y: groundY - 56,
--        width: 46,
-+        width: 52,
-         height: 56,
-         vy: 0,
-         gravity: 0.85,
-         jump: -15,
-         onGround: true,
-+        frame: 0,
-       };
- 
-       const obstacles = [];
- 
-+      const audioState = {
-+        ctx: null,
-+        musicOsc: null,
-+        musicLfo: null,
-+        gain: null,
-+        initialized: false,
-+        musicOn: false,
++      const player = {
++        x: 130,
++        y: world.floorY - 58,
++        w: 48,
++        h: 58,
++        vy: 0,
++        jumpPower: -17,
++        onGround: true,
 +      };
 +
-+      function initAudio() {
-+        if (audioState.initialized) return;
-+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-+        if (!AudioContextClass) return;
-+        audioState.ctx = new AudioContextClass();
-+        audioState.initialized = true;
++      let score = 0;
++      let best = Number(localStorage.getItem("runnerBestScore") || 0);
++      let obstacles = [];
++      let particles = [];
++      let trackOffset = 0;
++      let spawnTimer = 0;
++      let nextSpawn = randomRange(world.minSpawnMs, world.maxSpawnMs);
++      let prevTime = performance.now();
++
++      function randomRange(min, max) {
++        return Math.random() * (max - min) + min;
 +      }
 +
-+      function playFx(type) {
-+        initAudio();
-+        if (!audioState.ctx) return;
-+        const now = audioState.ctx.currentTime;
-+        const osc = audioState.ctx.createOscillator();
-+        const gain = audioState.ctx.createGain();
-+        osc.type = type === "hit" ? "sawtooth" : "square";
-+        osc.frequency.setValueAtTime(type === "jump" ? 520 : 180, now);
-+        osc.frequency.exponentialRampToValueAtTime(type === "jump" ? 900 : 80, now + 0.18);
-+        gain.gain.setValueAtTime(0.0001, now);
-+        gain.gain.exponentialRampToValueAtTime(type === "jump" ? 0.09 : 0.15, now + 0.01);
-+        gain.gain.exponentialRampToValueAtTime(0.0001, now + (type === "jump" ? 0.22 : 0.3));
-+        osc.connect(gain).connect(audioState.ctx.destination);
-+        osc.start(now);
-+        osc.stop(now + 0.32);
++      function reset() {
++        world.gameOver = false;
++        world.speed = 6;
++        score = 0;
++        obstacles = [];
++        particles = [];
++        player.y = world.floorY - player.h;
++        player.vy = 0;
++        player.onGround = true;
++        spawnTimer = 0;
++        nextSpawn = randomRange(world.minSpawnMs, world.maxSpawnMs);
 +      }
 +
-+      function toggleMusic() {
-+        initAudio();
-+        if (!audioState.ctx) return;
++      function spawnObstacle() {
++        const high = Math.random() < 0.2;
++        const w = high ? 36 : randomRange(30, 44);
++        const h = high ? randomRange(92, 120) : randomRange(42, 68);
++        const y = world.floorY - h;
 +
-+        if (!audioState.musicOn) {
-+          const osc = audioState.ctx.createOscillator();
-+          const lfo = audioState.ctx.createOscillator();
-+          const lfoGain = audioState.ctx.createGain();
-+          const gain = audioState.ctx.createGain();
++        obstacles.push({
++          x: canvas.width + 20,
++          y,
++          w,
++          h,
++          pulse: Math.random() * Math.PI,
++        });
++      }
 +
-+          osc.type = "triangle";
-+          osc.frequency.value = 220;
-+          lfo.type = "sine";
-+          lfo.frequency.value = 3.2;
-+          lfoGain.gain.value = 18;
-+          gain.gain.value = 0.035;
++      function jump() {
++        if (world.gameOver) {
++          reset();
++          return;
++        }
 +
-+          lfo.connect(lfoGain).connect(osc.frequency);
-+          osc.connect(gain).connect(audioState.ctx.destination);
++        if (!player.onGround) return;
++        player.vy = player.jumpPower;
++        player.onGround = false;
++      }
 +
-+          osc.start();
-+          lfo.start();
++      function intersects(a, b) {
++        return (
++          a.x < b.x + b.w &&
++          a.x + a.w > b.x &&
++          a.y < b.y + b.h &&
++          a.y + a.h > b.y
++        );
++      }
 +
-+          audioState.musicOsc = osc;
-+          audioState.musicLfo = lfo;
-+          audioState.gain = gain;
-+          audioState.musicOn = true;
-+          musicToggle.textContent = "🎵 Música encendida";
-+        } else {
-+          audioState.musicOsc.stop();
-+          audioState.musicLfo.stop();
-+          audioState.musicOsc.disconnect();
-+          audioState.musicLfo.disconnect();
-+          audioState.gain.disconnect();
-+          audioState.musicOsc = null;
-+          audioState.musicLfo = null;
-+          audioState.gain = null;
-+          audioState.musicOn = false;
-+          musicToggle.textContent = "🎵 Activar música";
++      function update(dt) {
++        if (world.gameOver) return;
++
++        score += dt * 0.012;
++        world.speed = 6 + score / 350;
++        trackOffset = (trackOffset + world.speed) % 52;
++
++        player.vy += world.gravity;
++        player.y += player.vy;
++
++        if (player.y >= world.floorY - player.h) {
++          player.y = world.floorY - player.h;
++          player.vy = 0;
++          player.onGround = true;
++        }
++
++        spawnTimer += dt;
++        if (spawnTimer >= nextSpawn) {
++          spawnTimer = 0;
++          nextSpawn = randomRange(world.minSpawnMs, world.maxSpawnMs - Math.min(score, 700));
++          spawnObstacle();
++        }
++
++        for (const obs of obstacles) {
++          obs.x -= world.speed;
++          obs.pulse += 0.08;
++
++          if (intersects(player, obs)) {
++            world.gameOver = true;
++            best = Math.max(best, Math.floor(score));
++            localStorage.setItem("runnerBestScore", String(best));
++            createExplosion(player.x + player.w / 2, player.y + player.h / 2);
++          }
++        }
++
++        obstacles = obstacles.filter((o) => o.x + o.w > -40);
++
++        particles.forEach((p) => {
++          p.x += p.vx;
++          p.y += p.vy;
++          p.life -= 1;
++        });
++        particles = particles.filter((p) => p.life > 0);
++      }
++
++      function createExplosion(x, y) {
++        for (let i = 0; i < 40; i += 1) {
++          const angle = Math.random() * Math.PI * 2;
++          const speed = randomRange(1.5, 5);
++          particles.push({
++            x,
++            y,
++            vx: Math.cos(angle) * speed,
++            vy: Math.sin(angle) * speed,
++            life: randomRange(18, 42),
++          });
 +        }
 +      }
 +
-       function spawnObstacle() {
--        const width = 24 + Math.random() * 34;
--        const height = 28 + Math.random() * 58;
-+        const width = 30 + Math.random() * 24;
-+        const height = 34 + Math.random() * 48;
-         obstacles.push({
-           x: canvas.width + width,
-           y: groundY - height,
-           width,
-           height,
-         });
-       }
- 
-       function reset() {
-         gameOver = false;
-         score = 0;
-         speed = 6;
-         obstacleTimer = 0;
-         obstacles.length = 0;
-         player.y = groundY - player.height;
-         player.vy = 0;
-         player.onGround = true;
-       }
- 
-       function jump() {
-         if (gameOver) {
-           reset();
-           return;
-         }
-         if (player.onGround) {
-           player.vy = player.jump;
-           player.onGround = false;
-+          playFx("jump");
-         }
-       }
- 
-       function collide(a, b) {
--        return (
--          a.x < b.x + b.width &&
--          a.x + a.width > b.x &&
--          a.y < b.y + b.height &&
--          a.y + a.height > b.y
--        );
-+        return a.x + 8 < b.x + b.width && a.x + a.width - 6 > b.x && a.y + 4 < b.y + b.height && a.y + a.height > b.y;
-       }
- 
-       function update() {
-         if (gameOver) return;
- 
-         player.vy += player.gravity;
-         player.y += player.vy;
-+        player.frame = (player.frame + speed * 0.15) % 2;
- 
-         if (player.y + player.height >= groundY) {
-           player.y = groundY - player.height;
-           player.vy = 0;
-           player.onGround = true;
-         }
- 
-         obstacleTimer += 1;
--        const spawnEvery = Math.max(45, 110 - speed * 6 + Math.random() * 20);
-+        const spawnEvery = Math.max(45, 105 - speed * 6 + Math.random() * 16);
-         if (obstacleTimer > spawnEvery) {
-           obstacleTimer = 0;
-           spawnObstacle();
-         }
- 
-         for (let i = obstacles.length - 1; i >= 0; i--) {
-           const o = obstacles[i];
-           o.x -= speed;
- 
-           if (collide(player, o)) {
-             gameOver = true;
-+            playFx("hit");
-             if (score > bestScore) {
-               bestScore = score;
-               localStorage.setItem("runnerBest", String(bestScore));
-             }
-           }
- 
-           if (o.x + o.width < 0) {
-             obstacles.splice(i, 1);
-             score += 1;
-             speed += 0.08;
-           }
-         }
- 
-         for (const star of stars) {
--          star.x -= speed * 0.15;
-+          star.x -= speed * 0.2;
-           if (star.x < -2) {
-             star.x = canvas.width + Math.random() * 40;
--            star.y = Math.random() * (groundY - 120);
-+            star.y = Math.random() * (groundY - 110);
-           }
-         }
-       }
- 
-       function drawRunner() {
--        ctx.fillStyle = "#ffd166";
--        ctx.fillRect(player.x, player.y, player.width, player.height);
--
--        ctx.fillStyle = "#0c1329";
--        ctx.fillRect(player.x + 30, player.y + 12, 8, 8);
--
--        ctx.fillStyle = "#ef476f";
--        ctx.fillRect(player.x + 8, player.y + 40, 28, 8);
-+        const legOffset = player.onGround ? (Math.floor(player.frame) === 0 ? 2 : -2) : -4;
-+        ctx.save();
-+        ctx.translate(player.x, player.y);
++      function drawBackground() {
++        ctx.fillStyle = "#86efac";
++        ctx.fillRect(0, world.floorY, canvas.width, canvas.height - world.floorY);
 +
-+        ctx.fillStyle = "#0b4fff";
++        for (let x = -60; x < canvas.width + 60; x += 52) {
++          ctx.fillStyle = "#14532d";
++          ctx.fillRect(x - trackOffset, world.floorY + 16, 30, 10);
++        }
++
++        ctx.fillStyle = "rgba(255,255,255,.25)";
 +        ctx.beginPath();
-+        ctx.ellipse(26, 29, 22, 25, 0, 0, Math.PI * 2);
++        ctx.arc(95, 74, 34, 0, Math.PI * 2);
 +        ctx.fill();
 +
-+        ctx.fillStyle = "#f4d5a1";
-+        ctx.beginPath();
-+        ctx.ellipse(30, 35, 12, 9, 0, 0, Math.PI * 2);
-+        ctx.fill();
++        ctx.fillStyle = "rgba(255,255,255,.16)";
++        ctx.fillRect(0, world.floorY - 3, canvas.width, 3);
++      }
 +
-+        ctx.fillStyle = "#0b4fff";
-+        ctx.fillRect(4, 16, 16, 7);
-+        ctx.fillRect(8, 9, 15, 7);
++      function drawPlayer() {
++        const bob = player.onGround ? Math.sin(performance.now() / 90) * 1.5 : 0;
++        const px = player.x;
++        const py = player.y + bob;
 +
-+        ctx.fillStyle = "#fff";
-+        ctx.fillRect(31, 19, 7, 10);
-+        ctx.fillStyle = "#121212";
-+        ctx.fillRect(35, 22, 2, 3);
++        ctx.fillStyle = "#111827";
++        ctx.fillRect(px + 8, py + 10, player.w - 16, player.h - 10);
 +
-+        ctx.fillStyle = "#da2f2f";
-+        ctx.fillRect(10, 44 + legOffset, 15, 8);
-+        ctx.fillRect(27, 45 - legOffset, 15, 8);
++        ctx.fillStyle = "#f8fafc";
++        ctx.fillRect(px + player.w - 16, py + 17, 10, 10);
 +
-+        ctx.restore();
-       }
- 
-       function draw() {
-         ctx.clearRect(0, 0, canvas.width, canvas.height);
- 
--        // estrellas
-+        const sky = ctx.createLinearGradient(0, 0, 0, groundY);
-+        sky.addColorStop(0, currentTheme.skyTop);
-+        sky.addColorStop(1, currentTheme.skyBottom);
-+        ctx.fillStyle = sky;
-+        ctx.fillRect(0, 0, canvas.width, groundY);
++        ctx.fillStyle = "#0ea5e9";
++        ctx.fillRect(px + 5, py + player.h - 16, player.w - 10, 8);
++      }
 +
-         for (const star of stars) {
--          ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
-+          ctx.fillStyle = currentTheme.star;
-           ctx.beginPath();
-           ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);
-           ctx.fill();
-         }
- 
--        // suelo
--        ctx.fillStyle = "#3a4f74";
-+        ctx.fillStyle = currentTheme.hill;
-+        for (let i = -120; i < canvas.width + 200; i += 170) {
-+          const x = i - (performance.now() * speed * 0.02) % 170;
-+          ctx.beginPath();
-+          ctx.arc(x, groundY + 40, 95, Math.PI, Math.PI * 2);
-+          ctx.fill();
++      function drawObstacles() {
++        for (const o of obstacles) {
++          ctx.fillStyle = "#7f1d1d";
++          ctx.fillRect(o.x, o.y, o.w, o.h);
++
++          ctx.fillStyle = "#fecaca";
++          const spikes = Math.floor(o.w / 8);
++          for (let i = 0; i < spikes; i += 1) {
++            const sx = o.x + i * 8;
++            ctx.beginPath();
++            ctx.moveTo(sx, o.y);
++            ctx.lineTo(sx + 4, o.y - 8 - Math.sin(o.pulse + i) * 2);
++            ctx.lineTo(sx + 8, o.y);
++            ctx.closePath();
++            ctx.fill();
++          }
 +        }
++      }
 +
-+        ctx.fillStyle = currentTheme.ground;
-         ctx.fillRect(0, groundY, canvas.width, canvas.height - groundY);
--        ctx.fillStyle = "#617da7";
--        for (let i = 0; i < canvas.width; i += 44) {
--          ctx.fillRect((i - (performance.now() * speed * 0.02) % 44), groundY + 28, 28, 5);
++      function drawParticles() {
++        particles.forEach((p) => {
++          ctx.globalAlpha = Math.max(p.life / 42, 0);
++          ctx.fillStyle = "#fef08a";
++          ctx.fillRect(p.x, p.y, 3, 3);
++        });
++        ctx.globalAlpha = 1;
++      }
 +
-+        ctx.fillStyle = currentTheme.lane;
-+        for (let i = 0; i < canvas.width; i += 52) {
-+          ctx.fillRect(i - (performance.now() * speed * 0.04) % 52, groundY + 30, 32, 6);
-         }
- 
-         drawRunner();
- 
--        // obstáculos
--        ctx.fillStyle = "#06d6a0";
-+        ctx.fillStyle = currentTheme.obstacle;
-         obstacles.forEach((o) => {
-           ctx.fillRect(o.x, o.y, o.width, o.height);
--          ctx.fillStyle = "#04b485";
--          ctx.fillRect(o.x + 4, o.y + 6, o.width - 8, 7);
--          ctx.fillStyle = "#06d6a0";
-+          ctx.fillStyle = currentTheme.obstacleDetail;
-+          ctx.fillRect(o.x + 4, o.y + 7, o.width - 8, 7);
-+          ctx.fillStyle = currentTheme.obstacle;
-         });
- 
--        // UI
--        ctx.fillStyle = "white";
-+        ctx.fillStyle = currentTheme.ui;
-         ctx.font = "bold 22px Segoe UI";
-         ctx.fillText(`Puntos: ${score}`, 20, 36);
-         ctx.fillText(`Mejor: ${bestScore}`, 20, 66);
-         ctx.fillText(`Velocidad: ${speed.toFixed(1)}`, 20, 96);
- 
-         if (gameOver) {
--          ctx.fillStyle = "rgba(0,0,0,0.6)";
-+          ctx.fillStyle = "rgba(0,0,0,0.58)";
-           ctx.fillRect(0, 0, canvas.width, canvas.height);
-           ctx.fillStyle = "#fff";
-           ctx.textAlign = "center";
-           ctx.font = "bold 40px Segoe UI";
-           ctx.fillText("¡Perdiste!", canvas.width / 2, 130);
-           ctx.font = "24px Segoe UI";
-           ctx.fillText("Pulsa espacio o clic para reiniciar", canvas.width / 2, 178);
-           ctx.textAlign = "left";
-         }
-       }
- 
-       function loop() {
-         update();
-         draw();
-         requestAnimationFrame(loop);
-       }
- 
-+      themeSelect.addEventListener("change", () => {
-+        currentTheme = themes[themeSelect.value];
++      function drawUI() {
++        ctx.fillStyle = "#0f172a";
++        ctx.font = "bold 24px Inter, sans-serif";
++        ctx.fillText(`Puntos: ${Math.floor(score)}`, 20, 36);
++        ctx.fillText(`Récord: ${best}`, 20, 68);
++
++        if (world.gameOver) {
++          ctx.fillStyle = "rgba(2, 6, 23, .72)";
++          ctx.fillRect(0, 0, canvas.width, canvas.height);
++
++          ctx.fillStyle = "#f8fafc";
++          ctx.textAlign = "center";
++          ctx.font = "bold 44px Inter, sans-serif";
++          ctx.fillText("Game Over", canvas.width / 2, 150);
++          ctx.font = "600 24px Inter, sans-serif";
++          ctx.fillText("Pulsa Espacio o clic para reiniciar", canvas.width / 2, 195);
++          ctx.fillText(`Puntaje final: ${Math.floor(score)}`, canvas.width / 2, 232);
++          ctx.textAlign = "left";
++        }
++      }
++
++      function draw() {
++        ctx.clearRect(0, 0, canvas.width, canvas.height);
++        drawBackground();
++        drawObstacles();
++        drawPlayer();
++        drawParticles();
++        drawUI();
++      }
++
++      function gameLoop(time) {
++        const dt = Math.min(time - prevTime, 32);
++        prevTime = time;
++        update(dt);
++        draw();
++        requestAnimationFrame(gameLoop);
++      }
++
++      window.addEventListener("keydown", (ev) => {
++        if (ev.code === "Space" || ev.code === "ArrowUp") {
++          ev.preventDefault();
++          jump();
++        }
 +      });
 +
-+      musicToggle.addEventListener("click", async () => {
-+        initAudio();
-+        if (audioState.ctx && audioState.ctx.state === "suspended") {
-+          await audioState.ctx.resume();
-+        }
-+        toggleMusic();
-+      });
-+
-       window.addEventListener("keydown", (e) => {
-         if (e.code === "Space" || e.code === "ArrowUp") {
-           e.preventDefault();
-           jump();
-         }
-       });
- 
-       canvas.addEventListener("pointerdown", jump);
- 
-       loop();
-     </script>
-   </body>
- </html>
- 
-EOF
-)
++      canvas.addEventListener("pointerdown", jump);
++      requestAnimationFrame(gameLoop);
++    </script>
++  </body>
++</html>
