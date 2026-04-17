@@ -126,15 +126,22 @@
     let dust = [];
     let groundMarks = createGroundMarks();
 
+    const EMBEDDED_SPRITE = "data:image/jpeg;base64,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";
+
     const spriteSheet = new Image();
-    spriteSheet.src = 'assets/player_sheet.png';
     let spriteReady = false;
-    spriteSheet.onload = () => { spriteReady = true; };
-    spriteSheet.onerror = () => { spriteReady = false; };
+    spriteSheet.onload = () => {
+      spriteReady = true;
+      console.log('Sprite cargado:', spriteSheet.width, spriteSheet.height);
+    };
+    spriteSheet.onerror = () => {
+      spriteReady = false;
+      console.error('No se pudo cargar el sprite embebido');
+    };
+    spriteSheet.src = EMBEDDED_SPRITE;
 
     const spriteConfig = {
       drawScale: 0.50,
-
       walk: [
         { x: 35,  y: 30,  w: 150, h: 250 },
         { x: 230, y: 30,  w: 150, h: 250 },
@@ -142,7 +149,6 @@
         { x: 635, y: 30,  w: 170, h: 250 },
         { x: 835, y: 30,  w: 170, h: 250 },
       ],
-
       run: [
         { x: 25,  y: 340, w: 180, h: 255 },
         { x: 225, y: 340, w: 180, h: 255 },
@@ -150,21 +156,18 @@
         { x: 635, y: 340, w: 180, h: 255 },
         { x: 835, y: 340, w: 180, h: 255 },
       ],
-
       jumpForward: [
         { x: 40,  y: 660, w: 180, h: 210 },
         { x: 250, y: 660, w: 180, h: 210 },
         { x: 465, y: 660, w: 180, h: 210 },
         { x: 675, y: 660, w: 180, h: 210 },
       ],
-
       slide: [
         { x: 35,  y: 975, w: 220, h: 175 },
         { x: 255, y: 975, w: 220, h: 175 },
         { x: 480, y: 975, w: 220, h: 175 },
         { x: 705, y: 975, w: 220, h: 175 },
       ],
-
       jumpUp: [
         { x: 255, y: 1265, w: 170, h: 235 },
         { x: 565, y: 1265, w: 170, h: 235 },
@@ -226,13 +229,11 @@
         resetGame();
         return;
       }
-
       if (player.grounded && !player.sliding) {
         player.vy = player.jumpForce;
         player.grounded = false;
         player.frameIndex = 0;
         player.frameTimer = 0;
-
         for (let i = 0; i < 7; i++) {
           dust.push({
             x: player.x + player.w * 0.4,
@@ -251,7 +252,6 @@
         resetGame();
         return;
       }
-
       if (!player.grounded || player.sliding) return;
       player.sliding = true;
       player.slideTimer = player.maxSlideTime;
@@ -273,7 +273,6 @@
     function spawnObstacle() {
       const typeRoll = Math.random();
       let h, w;
-
       if (typeRoll < 0.55) {
         w = 24 + Math.random() * 18;
         h = 38 + Math.random() * 36;
@@ -285,14 +284,7 @@
         h = 70 + Math.random() * 34;
       }
 
-      obstacles.push({
-        x: world.width + 30,
-        y: world.groundY - h,
-        w,
-        h,
-        counted: false,
-      });
-
+      obstacles.push({ x: world.width + 30, y: world.groundY - h, w, h, counted: false });
       const speedFactor = Math.min((world.speed - world.baseSpeed) * 3.5, 55);
       world.nextSpawnIn = 55 + Math.random() * 55 - speedFactor;
       world.nextSpawnIn = Math.max(34, world.nextSpawnIn);
@@ -305,12 +297,7 @@
     }
 
     function rectsCollide(a, b) {
-      return (
-        a.x < b.x + b.w &&
-        a.x + a.w > b.x &&
-        a.y < b.y + b.h &&
-        a.y + a.h > b.y
-      );
+      return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
     }
 
     function getAnimationName() {
@@ -325,14 +312,7 @@
       const frames = spriteConfig[animName];
       if (!frames || !frames.length) return;
 
-      const frameDurationMap = {
-        walk: 9,
-        run: 6,
-        jumpForward: 6,
-        slide: 7,
-        jumpUp: 12,
-      };
-
+      const frameDurationMap = { walk: 9, run: 6, jumpForward: 6, slide: 7, jumpUp: 12 };
       player.frameDuration = frameDurationMap[animName] || 7;
       player.frameTimer++;
 
@@ -358,9 +338,7 @@
 
       if (player.sliding) {
         player.slideTimer--;
-        if (player.slideTimer <= 0 || !input.slideHeld) {
-          stopSlide();
-        }
+        if (player.slideTimer <= 0 || !input.slideHeld) stopSlide();
       }
 
       player.vy += world.gravity;
@@ -384,58 +362,28 @@
         }
       }
 
-      for (const mark of groundMarks) {
-        mark.x -= world.speed;
-      }
-
+      for (const mark of groundMarks) mark.x -= world.speed;
       const lastMark = groundMarks[groundMarks.length - 1];
       if (lastMark && lastMark.x < world.width) {
-        groundMarks.push({
-          x: lastMark.x + 50 + Math.random() * 65,
-          w: 20 + Math.random() * 40,
-        });
+        groundMarks.push({ x: lastMark.x + 50 + Math.random() * 65, w: 20 + Math.random() * 40 });
       }
-
       groundMarks = groundMarks.filter(m => m.x + m.w > -10);
 
       world.spawnTimer++;
-      if (world.spawnTimer >= world.nextSpawnIn) {
-        spawnObstacle();
-      }
+      if (world.spawnTimer >= world.nextSpawnIn) spawnObstacle();
 
       for (const obs of obstacles) {
         obs.x -= world.speed;
 
         const hitbox = player.sliding
-          ? {
-              x: player.x + 12,
-              y: player.y + 20,
-              w: 52,
-              h: 34
-            }
+          ? { x: player.x + 12, y: player.y + 20, w: 52, h: 34 }
           : !player.grounded
-          ? {
-              x: player.x + 14,
-              y: player.y + 12,
-              w: 48,
-              h: 72
-            }
-          : {
-              x: player.x + 16,
-              y: player.y + 8,
-              w: 42,
-              h: 86
-            };
+          ? { x: player.x + 14, y: player.y + 12, w: 48, h: 72 }
+          : { x: player.x + 16, y: player.y + 8, w: 42, h: 86 };
 
-        if (!obs.counted && obs.x + obs.w < player.x) {
-          obs.counted = true;
-        }
-
-        if (rectsCollide(hitbox, obs)) {
-          world.gameOver = true;
-        }
+        if (!obs.counted && obs.x + obs.w < player.x) obs.counted = true;
+        if (rectsCollide(hitbox, obs)) world.gameOver = true;
       }
-
       obstacles = obstacles.filter(obs => obs.x + obs.w > -20);
 
       for (const p of dust) {
@@ -444,7 +392,6 @@
         p.vy += 0.08;
         p.life -= 1;
       }
-
       dust = dust.filter(p => p.life > 0);
     }
 
@@ -457,23 +404,16 @@
       ctx.fillRect(0, 0, world.width, world.height);
 
       ctx.fillStyle = 'rgba(255,255,255,0.85)';
-      for (const cloud of clouds) {
-        drawCloud(cloud.x, cloud.y, cloud.w, cloud.h);
-      }
+      for (const cloud of clouds) drawCloud(cloud.x, cloud.y, cloud.w, cloud.h);
 
       ctx.fillStyle = '#8ac56d';
       ctx.fillRect(0, world.groundY - 18, world.width, 18);
-
       ctx.fillStyle = '#3f7d3b';
       ctx.fillRect(0, world.groundY, world.width, world.height - world.groundY);
-
       ctx.fillStyle = '#2d5d2a';
       ctx.fillRect(0, world.groundY + 16, world.width, 6);
-
       ctx.fillStyle = '#7c5a3b';
-      for (const mark of groundMarks) {
-        ctx.fillRect(mark.x, world.groundY + 7, mark.w, 4);
-      }
+      for (const mark of groundMarks) ctx.fillRect(mark.x, world.groundY + 7, mark.w, 4);
     }
 
     function drawCloud(x, y, w, h) {
@@ -501,7 +441,6 @@
     function drawSpritePlayer() {
       const animName = getAnimationName();
       const frames = spriteConfig[animName];
-
       if (!frames || !frames.length) {
         drawFallbackPlayer();
         return;
@@ -518,30 +457,21 @@
         drawX = player.x - 6;
         drawY = world.groundY - drawH + 2;
       }
-
       if (animName === 'jumpForward') {
         drawX = player.x - 4;
         drawY = world.groundY - drawH - 2;
       }
-
       if (animName === 'jumpUp') {
         drawX = player.x - 4;
         drawY = world.groundY - drawH;
       }
 
-      ctx.drawImage(
-        spriteSheet,
-        frame.x, frame.y, frame.w, frame.h,
-        drawX, drawY, drawW, drawH
-      );
+      ctx.drawImage(spriteSheet, frame.x, frame.y, frame.w, frame.h, drawX, drawY, drawW, drawH);
     }
 
     function drawPlayer() {
-      if (spriteReady) {
-        drawSpritePlayer();
-      } else {
-        drawFallbackPlayer();
-      }
+      if (spriteReady) drawSpritePlayer();
+      else drawFallbackPlayer();
     }
 
     function drawObstacles() {
@@ -550,7 +480,6 @@
         ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
         ctx.fillStyle = '#666';
         ctx.fillRect(obs.x, obs.y, obs.w, 6);
-
         if (obs.h > 60) {
           ctx.fillStyle = '#5a8f3d';
           ctx.fillRect(obs.x - 4, obs.y + 8, obs.w + 8, 8);
@@ -572,21 +501,16 @@
 
     function drawOverlay() {
       if (!world.gameOver) return;
-
       ctx.fillStyle = 'rgba(0,0,0,0.28)';
       ctx.fillRect(0, 0, world.width, world.height);
-
       ctx.fillStyle = 'rgba(255,255,255,0.95)';
       ctx.fillRect(world.width / 2 - 210, world.height / 2 - 70, 420, 140);
-
       ctx.fillStyle = '#111';
       ctx.textAlign = 'center';
       ctx.font = 'bold 38px Arial';
       ctx.fillText('Fin de la partida', world.width / 2, world.height / 2 - 14);
-
       ctx.font = '24px Arial';
       ctx.fillText(`Puntuación: ${world.score}`, world.width / 2, world.height / 2 + 24);
-
       ctx.font = '18px Arial';
       ctx.fillText('Presiona R, Espacio, ↑ o clic para reiniciar', world.width / 2, world.height / 2 + 54);
     }
@@ -608,7 +532,6 @@
 
     function onKeyDown(e) {
       const key = e.key.toLowerCase();
-
       if (key === ' ' || key === 'arrowup' || key === 'w') {
         e.preventDefault();
         jump();
@@ -623,9 +546,7 @@
 
     function onKeyUp(e) {
       const key = e.key.toLowerCase();
-      if (key === 'arrowdown' || key === 's') {
-        input.slideHeld = false;
-      }
+      if (key === 'arrowdown' || key === 's') input.slideHeld = false;
     }
 
     window.addEventListener('keydown', onKeyDown);
